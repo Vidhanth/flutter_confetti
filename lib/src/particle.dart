@@ -59,6 +59,7 @@ class ParticleSystem extends ChangeNotifier {
 
   ParticleSystemStatus? _particleSystemStatus;
   Path Function(Size size)? customParticlePath;
+  int? customParticleNumber;
 
   final List<Particle> _particles = [];
 
@@ -75,7 +76,7 @@ class ParticleSystem extends ChangeNotifier {
   final Size _minimumSize;
   final Size _maximumSize;
   final double _particleDrag;
-  Path Function(Size size)? _createParticlePath;
+  final Path Function(Size size)? _createParticlePath;
 
   Offset? _particleSystemPosition;
   Size? _screenSize;
@@ -99,8 +100,10 @@ class ParticleSystem extends ChangeNotifier {
     _particleSystemStatus = ParticleSystemStatus.stopped;
   }
 
-  void startParticleEmission({Path Function(Size)? createParticlePath}) {
+  void startParticleEmission(
+      {Path Function(Size)? createParticlePath, int? numberOfParticles}) {
     if (particles.isNotEmpty) particles.clear();
+    customParticleNumber = numberOfParticles;
     customParticlePath = createParticlePath;
     _particleSystemStatus = ParticleSystemStatus.started;
   }
@@ -122,7 +125,8 @@ class ParticleSystem extends ChangeNotifier {
       // If there are no particles then immediately generate particles
       // This also ensures that particles are emitted on the first frame
       if (particles.isEmpty) {
-        _particles.addAll(_generateParticles(number: _numberOfParticles));
+        _particles.addAll(_generateParticles(
+            number: customParticleNumber ?? _numberOfParticles));
         return;
       }
 
@@ -130,7 +134,7 @@ class ParticleSystem extends ChangeNotifier {
       final chanceToGenerate = _rand.nextDouble();
       if (chanceToGenerate < _frequency) {
         _particles.addAll(_generateParticles(
-          number: _numberOfParticles,
+          number: customParticleNumber ?? _numberOfParticles,
         ));
       }
     }

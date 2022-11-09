@@ -227,7 +227,8 @@ class _ConfettiWidgetState extends State<ConfettiWidget>
 
   void _startEmission() {
     _particleSystem.startParticleEmission(
-        createParticlePath: widget.confettiController.createParticlePath);
+        createParticlePath: widget.confettiController.createParticlePath,
+        numberOfParticles: widget.confettiController.numOfParticles);
   }
 
   void _stopEmission() {
@@ -405,9 +406,11 @@ class ConfettiController extends ChangeNotifier {
   ConfettiControllerState get state => _state;
 
   Path Function(Size)? createParticlePath;
+  int? numOfParticles;
 
-  void play({Path Function(Size)? particlePath}) {
+  void play({Path Function(Size)? particlePath, int? numberOfParticles = 10}) {
     createParticlePath = particlePath;
+    numOfParticles = numberOfParticles;
     _state = ConfettiControllerState.playing;
     notifyListeners();
   }
