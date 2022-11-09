@@ -27,7 +27,7 @@ class ParticleSystem extends ChangeNotifier {
     required Size maximumSize,
     required double particleDrag,
     required double gravity,
-    Path Function(Size size)? createParticlePath,
+    final Path Function(Size size)? createParticlePath,
   })  : assert(maxBlastForce > 0 &&
             minBlastForce > 0 &&
             emissionFrequency >= 0 &&
@@ -58,6 +58,7 @@ class ParticleSystem extends ChangeNotifier {
         _createParticlePath = createParticlePath;
 
   ParticleSystemStatus? _particleSystemStatus;
+  Path Function(Size size)? customParticlePath;
 
   final List<Particle> _particles = [];
 
@@ -74,7 +75,7 @@ class ParticleSystem extends ChangeNotifier {
   final Size _minimumSize;
   final Size _maximumSize;
   final double _particleDrag;
-  final Path Function(Size size)? _createParticlePath;
+  Path Function(Size size)? _createParticlePath;
 
   Offset? _particleSystemPosition;
   Size? _screenSize;
@@ -98,7 +99,9 @@ class ParticleSystem extends ChangeNotifier {
     _particleSystemStatus = ParticleSystemStatus.stopped;
   }
 
-  void startParticleEmission() {
+  void startParticleEmission({Path Function(Size)? createParticlePath}) {
+    if (particles.isNotEmpty) particles.clear();
+    customParticlePath = createParticlePath;
     _particleSystemStatus = ParticleSystemStatus.started;
   }
 
@@ -126,7 +129,9 @@ class ParticleSystem extends ChangeNotifier {
       // Determines whether to generate new particles based on the [frequency]
       final chanceToGenerate = _rand.nextDouble();
       if (chanceToGenerate < _frequency) {
-        _particles.addAll(_generateParticles(number: _numberOfParticles));
+        _particles.addAll(_generateParticles(
+          number: _numberOfParticles,
+        ));
       }
     }
 
@@ -167,7 +172,7 @@ class ParticleSystem extends ChangeNotifier {
     return List<Particle>.generate(
         number,
         (i) => Particle(_generateParticleForce(), _randomColor(), _randomSize(),
-            _gravity, _particleDrag, _createParticlePath));
+            _gravity, _particleDrag, customParticlePath));
   }
 
   double get _randomBlastDirection =>
